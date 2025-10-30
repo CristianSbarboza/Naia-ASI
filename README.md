@@ -29,7 +29,7 @@ At the end of the process, the system generates a complete story based on the pr
 - **React Context API** for global story state management  
 - **FastAPI integration** for dynamic story generation  
 - Clean, intuitive **wizard-style design** with interactive icons  
-- Ready for **LLM or Agent integrations** (e.g., SingularityNET, OpenAI, Metta)
+- Ready for **LLM or Agent integrations** (e.g., SingularityNET,  Metta)
 
 ---
 
@@ -44,6 +44,7 @@ npm run dev
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
+
 
 
 
