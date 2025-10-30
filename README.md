@@ -4,7 +4,7 @@
 more information and documentation
 https://github.com/ALVF01/NAIA/blob/main/README.md
 
-# 🧠 StoryForge — AI-Powered Story Generation System
+# 🧠 Naia
 
 StoryForge is an interactive web application that allows users to create and generate stories using an AI agent.  
 Through a step-by-step form, users define the main narrative elements (protagonist, antagonist, setting, conflict, and theme).  
@@ -44,5 +44,6 @@ npm run dev
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
+
 
 
