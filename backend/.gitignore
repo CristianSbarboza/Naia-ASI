@@ -1,0 +1,50 @@
+# Arquivo .gitignore para backend Python/FastAPI/uAgents
+
+# 1. Ambientes Virtuais e Dependências
+#####################################
+# Diretório do ambiente virtual (venv, geralmente criado na raiz do projeto)
+venv/
+.venv/
+env/
+
+# Arquivos de bytecode e caches Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.$py.class
+
+# Arquivos de cache do Python (pep-484)
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+htmlcov/
+.nox/
+.coverage
+
+# Logs e Dados de Servidores
+############################
+# Logs de debug ou execução
+*.log
+*.sqlite3
+/data/
+
+# Arquivos de backup
+*.bak
+*~
+*.swp
+
+# Arquivos temporários do uAgents (Seeds, Wallets, etc.)
+########################################################
+# Se você tiver arquivos de seed ou carteira gerados pelo uAgents
+*.json.key # Arquivos de carteira (MUITA ATENÇÃO A ISSO)
+*.seed
+
+# Ignorar o diretório onde você executa o uvicorn/fastapi, se houver
+tmp/ 
+
+# Arquivos de IDEs e Sistemas Operacionais
+##########################################
+.DS_Store
+.idea/
+.vscode/
