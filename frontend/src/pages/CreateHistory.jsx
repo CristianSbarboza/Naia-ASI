@@ -1,8 +1,7 @@
 import React from "react";
 import StoryForm from "../components/StoryForm";
 import StoryGenerationOverlay from "../components/StoryGenerationOverlay";
-import { generateStoryWithAgent } from "../services/apiService";
-import { buildStoryPrompt } from "../utils/buildStoryPrompt";
+import { generateStoryWithAgent, mapFormToPrompt } from "../services/apiService";
 import { useStory } from "../context/StoryContext";
 import { useNavigate } from "react-router";
 
@@ -10,36 +9,32 @@ const CreateHistory = () => {
   const { formData, setFinalStory, isGenerating, setIsGenerating } = useStory();
   const navigate = useNavigate();
 
-  const handleGenerateStory = async () => {
-      setIsGenerating(true);
-      try {
-        // O prompt enviado agora é o objeto de dados do formulário,
-        // não mais a string formatada pelo buildStoryPrompt (que pode ser removido ou simplificado).
-        const promptData = formData; 
+  const handleGenerateStory = async (formDataFromForm) => {
+    setIsGenerating(true);
+    try {
+      // Mapear o formulário para o formato esperado pelo backend
+      const promptData = mapFormToPrompt(formDataFromForm);
 
-        console.log(promptData);
+      console.log("📤 Sending to backend:", promptData);
 
-        // 2. Chama a nova função HTTP
-        const responseData = await generateStoryWithAgent(promptData); // Agora recebe um OBJETO JSON
-        
-        console.log(responseData);
+      const responseData = await generateStoryWithAgent(promptData);
 
-        // 3. O Agente deve retornar JSON limpo. Não precisamos mais limpar ```...```
-        const storyText = responseData.storyData; // Campo StoryResponse.storyData
-        const title = responseData.title || formData.title || "Minha História";
+      console.log("✅ Backend response:", responseData);
 
-        // Salva no context
-        setFinalStory(storyText, title);
+      const storyText = responseData.storyData;
+      const title = responseData.title || formData.title || "Minha História";
 
-        // Navega para story view
-        navigate("/history-view");
+      // Salva no context
+      setFinalStory(storyText, title);
 
-      } catch (error) {
-        console.error("Error generating the story:", error);
-        alert(`Erro ao gerar a história: ${error.message}. Verifique se o Backend e o Agente estão ativos.`);
-      } finally {
-        setIsGenerating(false);
-      }
+      // Navega para story view
+      navigate("/history-view");
+    } catch (error) {
+      console.error("🚨 Error generating the story:", error);
+      alert(`Erro ao gerar a história: ${error.message}. Verifique se o Backend e o Agente estão ativos.`);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (

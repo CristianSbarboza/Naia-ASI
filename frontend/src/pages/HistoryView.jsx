@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import EditWord from "../components/EditWord";
 import SaveStoryButton from "../components/SaveStoryButton";
@@ -11,35 +11,41 @@ const HistoryView = () => {
   const [story, setStory] = useState(storyData || "");
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // ✅ Function updated to correctly download PDF
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF({
-      unit: "pt",
-      format: "a4",
-    });
+  // Parse JSON safely
+  const parsedStory = useMemo(() => {
+    if (!story) return null;
+    try {
+      const cleaned = story.replace(/```json|```/g, "").trim();
+      return JSON.parse(cleaned);
+    } catch (e) {
+      console.error("Erro ao parsear storyData:", e);
+      return null;
+    }
+  }, [story]);
 
+  const handleDownloadPDF = () => {
+    if (!parsedStory) return;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
     const margin = 50;
     const pageWidth = doc.internal.pageSize.getWidth() - margin * 2;
     const pageHeight = doc.internal.pageSize.getHeight();
     const lineHeight = 18;
 
-    // Title
     doc.setFont("times", "bold");
     doc.setFontSize(22);
-    doc.text(storyTitle || "My Story", pageWidth / 2 + margin, 70, {
-      align: "center",
-    });
+    doc.text(storyTitle || "My Story", pageWidth / 2 + margin, 70, { align: "center" });
 
     doc.setFont("times", "normal");
     doc.setFontSize(12);
 
-    // Split text into paragraphs based on double line breaks
-    const paragraphs = story.split(/\n\s*\n/);
     let y = 110;
+    parsedStory.chapters.forEach((chapter) => {
+      doc.setFont("times", "bold");
+      doc.text(chapter.title, margin, y);
+      y += lineHeight;
 
-    paragraphs.forEach((paragraph) => {
-      const lines = doc.splitTextToSize(paragraph.trim(), pageWidth);
-
+      doc.setFont("times", "normal");
+      const lines = doc.splitTextToSize(chapter.content, pageWidth);
       lines.forEach((line) => {
         if (y + lineHeight > pageHeight - margin) {
           doc.addPage();
@@ -48,27 +54,20 @@ const HistoryView = () => {
         doc.text(line, margin, y);
         y += lineHeight;
       });
-
-      y += lineHeight; // extra space between paragraphs
+      y += lineHeight;
     });
 
-    // Footer with page numbers
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
-      doc.text(
-        `Page ${i} of ${totalPages}`,
-        pageWidth / 2 + margin,
-        pageHeight - 30,
-        { align: "center" }
-      );
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2 + margin, pageHeight - 30, { align: "center" });
     }
 
     doc.save(`${storyTitle?.replace(/\s+/g, "_") || "story"}.pdf`);
   };
 
-  if (!story) {
+  if (!parsedStory) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center">
         <p className="text-gray-600 mb-4">No story has been generated yet.</p>
@@ -85,10 +84,8 @@ const HistoryView = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 flex flex-col items-center mt-16">
       <div className="w-full max-w-3xl bg-white p-6 rounded-xl shadow-lg relative">
-        {/* Header with buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
           <SaveStoryButton storyText={story} title={storyTitle} />
-
           <button
             onClick={() => setShowEditModal(true)}
             className="py-2 px-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-semibold shadow w-full sm:w-auto"
@@ -101,12 +98,15 @@ const HistoryView = () => {
           📖 {storyTitle}
         </h2>
 
-        {/* Story content */}
         <div className="h-[60vh] sm:h-[70vh] overflow-y-auto border border-gray-200 p-4 rounded mb-6 whitespace-pre-wrap text-gray-800 leading-relaxed">
-          {story}
+          {parsedStory.chapters.map((chapter, idx) => (
+            <div key={idx} className="mb-6">
+              <h3 className="text-xl font-bold mb-2">{chapter.title}</h3>
+              <p>{chapter.content}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => navigate("/flipbook")}
@@ -131,7 +131,6 @@ const HistoryView = () => {
         </div>
       </div>
 
-      {/* Refine Story Modal */}
       {showEditModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
           <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl">

@@ -114,13 +114,13 @@ const Home = () => {
             to="/create-history"
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full text-lg transition-all duration-300 shadow-lg hover:shadow-2xl"
           >
-            🚀 Start Now
+            Start Now
           </Link>
           <Link
             to="/stories-page"
             className="bg-white hover:bg-blue-50 text-blue-600 font-bold py-3 px-10 rounded-full text-lg transition-all duration-300 shadow-lg border-2 border-blue-600 hover:shadow-2xl"
           >
-            🔄 Translate Story
+            Translate Story
           </Link>
         </motion.div>
 

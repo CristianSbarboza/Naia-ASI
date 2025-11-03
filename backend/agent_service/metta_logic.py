@@ -2,9 +2,8 @@ from typing import List
 from hyperon import MeTTa, S, E, V, OperationObject
 from .models import StoryPrompt
 
-# --- Base de Conhecimento MeTTa (SingularityNET Knowledge Graph simplificado) ---
+# --- Base de Conhecimento MeTTa ---
 METTA_KB = """
-;; Fraquezas típicas de antagonistas (simbolicamente representadas)
 (is-weak-to vampiro prata)
 (is-weak-to vampiro luz-solar)
 (is-weak-to lobisomem prata)
@@ -12,7 +11,6 @@ METTA_KB = """
 (is-weak-to feiticeiro coragem)
 (is-weak-to sombra luz)
 
-;; Locais clássicos (para narrativa coerente)
 (is-location vampiro Transilvania)
 (is-location lobisomem Highlands)
 (is-location dragao Montanhas-Geladas)
@@ -22,7 +20,6 @@ METTA_KB = """
 metta_runner = None
 
 def initialize_metta_runner() -> MeTTa | None:
-    """Inicializa o MeTTa e carrega a base de conhecimento (KB)."""
     global metta_runner
     if metta_runner is None:
         try:
@@ -30,12 +27,11 @@ def initialize_metta_runner() -> MeTTa | None:
             metta_runner.run(METTA_KB)
             print("✅ MeTTa inicializado e KB carregado.")
         except Exception as e:
-            print(f"⚠️ Erro ao inicializar MeTTa, usando fallback: {e}")
+            print(f"⚠️ Erro ao inicializar MeTTa: {e}")
             metta_runner = None
     return metta_runner
 
 def get_antagonist_weaknesses(metta: MeTTa, antagonist_name: str) -> List[str]:
-    """Consulta o MeTTa para encontrar fraquezas do antagonista."""
     if not metta:
         return []
 
@@ -52,12 +48,12 @@ def get_antagonist_weaknesses(metta: MeTTa, antagonist_name: str) -> List[str]:
     return weaknesses
 
 def enrich_prompt_with_metta(prompt: StoryPrompt) -> str:
-    """Gera um prompt narrativo enriquecido com inferência simbólica do MeTTa."""
+    """Gera prompt enriquecido para ASI:One, já pedindo 5 capítulos de ~100 palavras cada"""
     metta = initialize_metta_runner()
     weaknesses = get_antagonist_weaknesses(metta, prompt.antagonist)
 
     enriched_prompt = f"""
-Você é um agente narrativo que deve gerar uma história criativa em 3 capítulos.
+Você é um agente narrativo que deve gerar uma história criativa em 5 capítulos, cada capítulo com aproximadamente 100 palavras.
 Base da história:
 Título: {prompt.title}
 Protagonista: {prompt.protagonist}
@@ -68,8 +64,7 @@ Tema central: {prompt.theme}
 """
 
     if weaknesses:
-        weaknesses_str = ", ".join(weaknesses)
-        enriched_prompt += f"\n🔹 Informação simbólica (MeTTa): o antagonista é fraco contra {weaknesses_str}. Use isso como ponto de virada narrativo."
+        enriched_prompt += f"\n🔹 Informação simbólica (MeTTa): o antagonista é fraco contra {', '.join(weaknesses)}. Use isso como ponto de virada narrativo."
     else:
         enriched_prompt += "\n⚙️ Nenhuma fraqueza conhecida foi encontrada no MeTTa. Crie livremente."
 
@@ -78,7 +73,13 @@ A resposta deve ser JSON no formato:
 {
   "title": "Título da história",
   "storyData": "Texto completo da história",
-  "chapters": ["Capítulo 1", "Capítulo 2", "Capítulo 3"]
+  "chapters": [
+      {"title": "Capítulo 1", "content": "Escreva ~100 palavras"},
+      {"title": "Capítulo 2", "content": "Escreva ~100 palavras"},
+      {"title": "Capítulo 3", "content": "Escreva ~100 palavras"},
+      {"title": "Capítulo 4", "content": "Escreva ~100 palavras"},
+      {"title": "Capítulo 5", "content": "Escreva ~100 palavras"}
+  ]
 }
 """
     return enriched_prompt

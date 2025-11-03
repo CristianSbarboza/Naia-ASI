@@ -8,14 +8,53 @@ const StoryCard = ({
   onDelete,
   onTranslate,
 }) => {
-
   const handleUploadToGoogleBooks = () => {
-    // Gera PDF
     if (onDownloadPDF) {
       onDownloadPDF(story);
     }
-    // Redireciona para o Google Books Upload
     window.open("https://play.google.com/books/publish", "_blank");
+  };
+
+  // 🔧 Função que limpa e resume o conteúdo da história
+  const getStoryPreview = (text) => {
+    if (!text) return "Nenhum conteúdo disponível.";
+
+    let parsed;
+    // 1️⃣ Se vier como string JSON, tenta converter
+    try {
+      const cleaned = text.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      parsed = null;
+    }
+
+    // 2️⃣ Se o parse der certo → extrai conteúdo legível
+    if (parsed) {
+      const intro =
+        parsed.introduction?.content ||
+        parsed.introduction ||
+        "";
+      const chapters = parsed.chapters
+        ? parsed.chapters
+            .slice(0, 2)
+            .map(
+              (ch, i) =>
+                `📖 ${ch.title || `Capítulo ${i + 1}`}: ${ch.content.slice(
+                  0,
+                  80
+                )}...`
+            )
+            .join("\n")
+        : "";
+
+      return (
+        ` ${intro.slice(0, 150)}\n` +
+        (chapters ? `\n${chapters}` : "")
+      ).trim();
+    }
+
+    // 3️⃣ Se não for JSON → mostra só um resumo do texto comum
+    return text.slice(0, 250) + (text.length > 250 ? "..." : "");
   };
 
   return (
@@ -24,7 +63,10 @@ const StoryCard = ({
         {story.title || "Untitled"}
       </h2>
 
-      <p className="text-gray-700 text-sm mb-4 line-clamp-4">{story.text}</p>
+      {/* ✅ Prévia limpa, sem marcas JSON */}
+      <pre className="text-gray-700 text-sm mb-4 line-clamp-5 whitespace-pre-wrap">
+        {getStoryPreview(story.text)}
+      </pre>
 
       <div className="grid grid-cols-2 gap-3 mt-auto">
         <button

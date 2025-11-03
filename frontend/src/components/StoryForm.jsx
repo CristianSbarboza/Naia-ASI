@@ -1,4 +1,3 @@
-// frontend/src/components/StoryForm.jsx
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ArrowRight, BookOpen, User, Zap, Globe, MessageSquare } from 'lucide-react';
 import IdeaLamp from "./IdeaLamp";
@@ -34,7 +33,7 @@ const FormSummary = ({ data, onRestart, onGenerateStory, onBack, isSubmitting })
       <button onClick={onRestart} className="w-full py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition duration-300 shadow-md">
         Restart
       </button>
-      <button onClick={onGenerateStory} disabled={isSubmitting}
+      <button onClick={() => onGenerateStory(data)} disabled={isSubmitting}
         className={`w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-md ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}>
         {isSubmitting ? 'Generating Story...' : 'Generate Story'}
       </button>
@@ -52,7 +51,6 @@ const StoryForm = ({ onSubmit }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const totalSteps = stepsConfig.length;
 
-  // Sincroniza contexto com localForm (sem loop)
   useEffect(() => {
     updateFormData(localForm);
   }, [localForm]);
@@ -81,7 +79,7 @@ const StoryForm = ({ onSubmit }) => {
     if (!onSubmit) return;
     setIsSubmitting(true);
     try {
-      await onSubmit(localForm);
+      await onSubmit(localForm); // Passa localForm diretamente
     } finally {
       setIsSubmitting(false);
     }
