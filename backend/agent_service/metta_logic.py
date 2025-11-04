@@ -53,7 +53,7 @@ def enrich_prompt_with_metta(prompt: StoryPrompt) -> str:
     weaknesses = get_antagonist_weaknesses(metta, prompt.antagonist)
 
     enriched_prompt = f"""
-Você é um agente narrativo que deve gerar uma história criativa em 5 capítulos, cada capítulo com aproximadamente 100 palavras.
+Você é um agente narrativo que deve gerar uma história criativa em 5 capítulos, cada capítulo com aproximadamente 200 palavras.
 Base da história:
 Título: {prompt.title}
 Protagonista: {prompt.protagonist}

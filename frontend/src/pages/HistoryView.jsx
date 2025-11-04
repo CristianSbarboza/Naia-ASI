@@ -98,15 +98,28 @@ const HistoryView = () => {
           📖 {storyTitle}
         </h2>
 
+        {/* --- CAPÍTULOS --- */}
         <div className="h-[60vh] sm:h-[70vh] overflow-y-auto border border-gray-200 p-4 rounded mb-6 whitespace-pre-wrap text-gray-800 leading-relaxed">
           {parsedStory.chapters.map((chapter, idx) => (
-            <div key={idx} className="mb-6">
+            <div key={idx} className="mb-8">
               <h3 className="text-xl font-bold mb-2">{chapter.title}</h3>
-              <p>{chapter.content}</p>
+              <p className="mb-3">{chapter.content}</p>
+
+              {/* Mostra imagem se existir */}
+              {chapter.image_url && (
+                <div className="flex justify-center my-4">
+                  <img
+                    src={chapter.image_url}
+                    alt={`Imagem do ${chapter.title}`}
+                    className="rounded-xl shadow-md max-h-64 object-cover"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
 
+        {/* --- BOTÕES --- */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => navigate("/flipbook")}
