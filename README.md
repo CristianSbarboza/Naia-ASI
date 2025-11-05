@@ -43,7 +43,8 @@ npm run dev
 
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
+python3 -m agent_service.agent
 
 
 
